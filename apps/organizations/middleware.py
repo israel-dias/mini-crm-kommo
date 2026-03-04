@@ -9,6 +9,7 @@ class ActiveOrganizationMiddleware(MiddlewareMixin):
     - guarda em request.organization_id (string/uuid)
     A validação (existência e membership) fica para as permissions no DRF.
     """
+
     HEADER_NAME = "HTTP_X_ORGANIZATION_ID"
 
     def process_request(self, request):

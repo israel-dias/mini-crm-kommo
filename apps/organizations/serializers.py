@@ -1,6 +1,7 @@
 # Primeiro endpoint: listar minhas organizations (sem header)
 from rest_framework import serializers
-from apps.organizations.models import Organization, Membership
+
+from apps.organizations.models import Membership, Organization
 
 
 class OrganizationSerializer(serializers.ModelSerializer):

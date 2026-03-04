@@ -1,5 +1,5 @@
 # api/v1/urls.py
-from django.urls import path, include
+from django.urls import include, path
 
 urlpatterns = [
     path("", include("apps.organizations.urls")),  # mantém /me/organizations/

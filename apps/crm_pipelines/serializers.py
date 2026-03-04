@@ -14,7 +14,16 @@ class PipelineSerializer(serializers.ModelSerializer):
 class StageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stage
-        fields = ["id", "pipeline", "name", "order", "is_won", "is_lost", "created_at", "updated_at"]
+        fields = [
+            "id",
+            "pipeline",
+            "name",
+            "order",
+            "is_won",
+            "is_lost",
+            "created_at",
+            "updated_at",
+        ]
         read_only_fields = ["id", "created_at", "updated_at"]
 
     def validate_pipeline(self, pipeline: Pipeline) -> Pipeline:
@@ -29,7 +38,9 @@ class StageSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Active organization required.")
 
         if pipeline.organization_id != org.id:
-            raise serializers.ValidationError("Pipeline does not belong to the active organization.")
+            raise serializers.ValidationError(
+                "Pipeline does not belong to the active organization."
+            )
         return pipeline
 
     def validate(self, attrs):

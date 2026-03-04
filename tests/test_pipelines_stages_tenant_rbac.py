@@ -2,8 +2,8 @@ import pytest
 from rest_framework.test import APIClient
 
 from apps.accounts.models import User
-from apps.organizations.models import Organization, Membership
-from apps.crm_pipelines.models import Pipeline, Stage
+from apps.crm_pipelines.models import Pipeline
+from apps.organizations.models import Membership, Organization
 
 
 @pytest.mark.django_db
@@ -13,7 +13,9 @@ def test_tenant_isolation_pipelines_list_and_create():
     org1 = Organization.objects.create(name="Org 1", slug="org-1")
     org2 = Organization.objects.create(name="Org 2", slug="org-2")
 
-    Membership.objects.create(user=user, organization=org1, role=Membership.Role.ADMIN, is_active=True)
+    Membership.objects.create(
+        user=user, organization=org1, role=Membership.Role.ADMIN, is_active=True
+    )
 
     client = APIClient()
     client.force_authenticate(user=user)
@@ -48,9 +50,13 @@ def test_cross_tenant_uuid_access_returns_404():
     org1 = Organization.objects.create(name="Org 1", slug="org-1")
     org2 = Organization.objects.create(name="Org 2", slug="org-2")
 
-    Membership.objects.create(user=user, organization=org1, role=Membership.Role.ADMIN, is_active=True)
+    Membership.objects.create(
+        user=user, organization=org1, role=Membership.Role.ADMIN, is_active=True
+    )
 
-    pipeline_org2 = Pipeline.objects.create(organization=org2, name="Org2 Funil", is_default=True, ordering=1)
+    pipeline_org2 = Pipeline.objects.create(
+        organization=org2, name="Org2 Funil", is_default=True, ordering=1
+    )
 
     client = APIClient()
     client.force_authenticate(user=user)
@@ -64,7 +70,9 @@ def test_cross_tenant_uuid_access_returns_404():
 def test_tenant_scoped_endpoints_require_header():
     user = User.objects.create_user(username="u1", email="u1@mail.com", password="123456")
     org1 = Organization.objects.create(name="Org 1", slug="org-1")
-    Membership.objects.create(user=user, organization=org1, role=Membership.Role.ADMIN, is_active=True)
+    Membership.objects.create(
+        user=user, organization=org1, role=Membership.Role.ADMIN, is_active=True
+    )
 
     client = APIClient()
     client.force_authenticate(user=user)
@@ -79,9 +87,13 @@ def test_tenant_scoped_endpoints_require_header():
 def test_rbac_viewer_cannot_mutate_but_can_read():
     user = User.objects.create_user(username="viewer", email="viewer@mail.com", password="123456")
     org1 = Organization.objects.create(name="Org 1", slug="org-1")
-    Membership.objects.create(user=user, organization=org1, role=Membership.Role.VIEWER, is_active=True)
+    Membership.objects.create(
+        user=user, organization=org1, role=Membership.Role.VIEWER, is_active=True
+    )
 
-    pipeline = Pipeline.objects.create(organization=org1, name="Vendas", is_default=True, ordering=1)
+    pipeline = Pipeline.objects.create(
+        organization=org1, name="Vendas", is_default=True, ordering=1
+    )
 
     client = APIClient()
     client.force_authenticate(user=user)
@@ -99,7 +111,9 @@ def test_rbac_viewer_cannot_mutate_but_can_read():
     )
     assert res_post.status_code == 403
 
-    res_delete = client.delete(f"/api/v1/pipelines/{pipeline.id}/", HTTP_X_ORGANIZATION_ID=str(org1.id))
+    res_delete = client.delete(
+        f"/api/v1/pipelines/{pipeline.id}/", HTTP_X_ORGANIZATION_ID=str(org1.id)
+    )
     assert res_delete.status_code == 403
 
 
@@ -109,9 +123,13 @@ def test_stage_validation_rejects_pipeline_from_other_org():
 
     org1 = Organization.objects.create(name="Org 1", slug="org-1")
     org2 = Organization.objects.create(name="Org 2", slug="org-2")
-    Membership.objects.create(user=admin, organization=org1, role=Membership.Role.ADMIN, is_active=True)
+    Membership.objects.create(
+        user=admin, organization=org1, role=Membership.Role.ADMIN, is_active=True
+    )
 
-    pipeline_org2 = Pipeline.objects.create(organization=org2, name="Org2 Funil", is_default=True, ordering=1)
+    pipeline_org2 = Pipeline.objects.create(
+        organization=org2, name="Org2 Funil", is_default=True, ordering=1
+    )
 
     client = APIClient()
     client.force_authenticate(user=admin)
@@ -119,7 +137,13 @@ def test_stage_validation_rejects_pipeline_from_other_org():
     # Tenta criar stage na org1 apontando pipeline da org2 -> 400 (serializer valida)
     res = client.post(
         "/api/v1/stages/",
-        {"pipeline": str(pipeline_org2.id), "name": "Novo", "order": 1, "is_won": False, "is_lost": False},
+        {
+            "pipeline": str(pipeline_org2.id),
+            "name": "Novo",
+            "order": 1,
+            "is_won": False,
+            "is_lost": False,
+        },
         format="json",
         HTTP_X_ORGANIZATION_ID=str(org1.id),
     )

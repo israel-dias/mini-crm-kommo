@@ -76,7 +76,10 @@ class Stage(OrganizationScopedModel):
             ),
         ]
         indexes = [
-            models.Index(fields=["organization", "pipeline", "order"], name="idx_stage_org_pipeline_order"),
+            models.Index(
+                fields=["organization", "pipeline", "order"],
+                name="idx_stage_org_pipeline_order",
+            ),
             models.Index(fields=["organization", "pipeline"], name="idx_stage_org_pipeline"),
         ]
 
@@ -85,7 +88,11 @@ class Stage(OrganizationScopedModel):
         Validação de integridade de tenant:
         stage.organization precisa ser a mesma do pipeline.organization.
         """
-        if self.pipeline_id and self.organization_id and self.pipeline.organization_id != self.organization_id:
+        if (
+            self.pipeline_id
+            and self.organization_id
+            and self.pipeline.organization_id != self.organization_id
+        ):
             raise ValidationError("Stage organization must match Pipeline organization.")
 
     def save(self, *args, **kwargs):

@@ -6,8 +6,8 @@ import pytest
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from apps.organizations.models import Organization, Membership
 from apps.accounts.models import User
+from apps.organizations.models import Membership, Organization
 
 
 @pytest.mark.django_db

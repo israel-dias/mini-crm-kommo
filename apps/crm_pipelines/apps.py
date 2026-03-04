@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class CrmPipelinesConfig(AppConfig):
-    name = 'apps.crm_pipelines'
+    name = "apps.crm_pipelines"
