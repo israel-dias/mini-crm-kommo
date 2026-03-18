@@ -1,5 +1,7 @@
 # O endpoint de listar orgs não deve depender do header.
-# O bloqueio cross-tenant será validado quando criarmos um endpoint realmente tenant-scoped (ex.: Deals). para que eu possa testar isso direito.
+# O bloqueio cross-tenant será validado quando criarmos
+# um endpoint realmente tenant-scoped (ex.: Deals).
+# para que eu possa testar isso direito.
 
 
 import pytest
@@ -42,5 +44,5 @@ def test_cross_tenant_is_blocked_by_middleware():
     res = client.get(url, HTTP_X_ORGANIZATION_ID=str(org2.id))
 
     # Este endpoint específico não bloqueia por header, ele ignora.
-    # Então aqui o teste relevante será em um endpoint tenant-scoped (vamos criar no próximo passo).
+    # Então aqui o teste relevante será em um endpoint tenant-scoped.
     assert res.status_code == 200

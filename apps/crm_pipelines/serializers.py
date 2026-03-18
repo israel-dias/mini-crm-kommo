@@ -34,7 +34,8 @@ class StageSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         org = getattr(request, "organization", None)
         if not org:
-            # permission HasActiveOrganization deve barrar antes, mas mantemos defesa em profundidade
+            # A permission deve barrar antes,
+            # mas mantemos defesa em profundidade.
             raise serializers.ValidationError("Active organization required.")
 
         if pipeline.organization_id != org.id:
