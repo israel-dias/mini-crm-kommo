@@ -19,6 +19,7 @@ class StageSerializer(serializers.ModelSerializer):
             "pipeline",
             "name",
             "order",
+            "conversion_probability",
             "is_won",
             "is_lost",
             "created_at",

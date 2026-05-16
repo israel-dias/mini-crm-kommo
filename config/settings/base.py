@@ -64,7 +64,7 @@ DATABASES = {
         "NAME": config("DB_NAME", default="kommo"),
         "USER": config("DB_USER", default="kommo"),
         "PASSWORD": config("DB_PASSWORD", default="kommo"),
-        "HOST": config("DB_HOST", default="localhost"),
+        "HOST": config("DB_HOST", default="db"),
         "PORT": config("DB_PORT", default="5432"),
     }
 }

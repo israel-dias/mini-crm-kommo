@@ -17,7 +17,7 @@ DATABASES = {
         "NAME": os.environ.get("TEST_DB_NAME", "kommo_test"),
         "USER": os.environ.get("TEST_DB_USER", "kommo"),
         "PASSWORD": os.environ.get("TEST_DB_PASSWORD", "kommo"),
-        "HOST": os.environ.get("TEST_DB_HOST", "localhost"),
+        "HOST": os.environ.get("TEST_DB_HOST", "db"),
         "PORT": os.environ.get("TEST_DB_PORT", "5432"),
     }
 }

@@ -1,5 +1,6 @@
 # apps/crm_pipelines/models.py
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
 
@@ -53,23 +54,28 @@ class Stage(OrganizationScopedModel):
     name = models.CharField(max_length=120)
     order = models.PositiveIntegerField(default=0)
 
-    # flags: úteis para relatórios e regra futura de conversão
     is_won = models.BooleanField(default=False)
     is_lost = models.BooleanField(default=False)
 
+    conversion_probability = models.PositiveSmallIntegerField(
+        default=0,
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(100),
+        ],
+        help_text="Probabilidade estimada de conversão desta etapa no funil, de 0 a 100.",
+    )
+
     class Meta:
         constraints = [
-            # Nome único por pipeline dentro da org (impede duplicidade comum)
             models.UniqueConstraint(
                 fields=["organization", "pipeline", "name"],
                 name="uq_stage_org_pipeline_name",
             ),
-            # Ordem única por pipeline dentro da org (evita order duplicado)
             models.UniqueConstraint(
                 fields=["organization", "pipeline", "order"],
                 name="uq_stage_org_pipeline_order",
             ),
-            # Uma stage não pode ser won e lost ao mesmo tempo
             models.CheckConstraint(
                 condition=~(Q(is_won=True) & Q(is_lost=True)),
                 name="ck_stage_not_won_and_lost",
@@ -85,20 +91,22 @@ class Stage(OrganizationScopedModel):
 
     def clean(self):
         """
-        Validação de integridade de tenant:
-        stage.organization precisa ser a mesma do pipeline.organization.
+        Garante consistência das regras de negócio da etapa do funil.
         """
-        if (
-            self.pipeline_id
-            and self.organization_id
-            and self.pipeline.organization_id != self.organization_id
-        ):
-            raise ValidationError("Stage organization must match Pipeline organization.")
 
-    def save(self, *args, **kwargs):
-        # Garante que clean() roda sempre (inclusive via admin e scripts)
-        self.full_clean()
-        return super().save(*args, **kwargs)
+        super().clean()
 
-    def __str__(self) -> str:
-        return f"{self.pipeline.name} :: {self.name}"
+        if self.is_won and self.is_lost:
+            raise ValidationError(
+                "Uma etapa não pode ser marcada como ganha e perdida ao mesmo tempo."
+            )
+
+        if self.is_won and self.conversion_probability != 100:
+            raise ValidationError(
+                {"conversion_probability": ("Etapas ganhas devem ter probabilidade de 100%.")}
+            )
+
+        if self.is_lost and self.conversion_probability != 0:
+            raise ValidationError(
+                {"conversion_probability": ("Etapas perdidas devem ter probabilidade de 0%.")}
+            )
